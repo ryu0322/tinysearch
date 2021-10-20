@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"tinysearch"
+	"github.com/ryu0322/tinysearch"
 	"github.com/urfave/cli"
 	"strings"
 )

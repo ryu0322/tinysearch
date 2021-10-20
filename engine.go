@@ -23,8 +23,8 @@ func NewSearchEngine(db *sql.DB) *Engine {
 
 	path, ok := os.LookupEnv("INDEX_DIR_PATH")
 	if !ok {
-		current := os.Getwd()
-		path := filepath.Join(current, "_index_data")
+		current, _ := os.Getwd()
+		path = filepath.Join(current, "_index_data")
 	}
 
 	return &Engine {
@@ -48,7 +48,7 @@ func (e *Engine) AddDocument(title string, reader io.Reader) error {
 
 // インデックスをファイルに書き出す
 func (e *Engine) Flush() error {
-	writer := NewIndexWrite(e.indexDir)
+	writer := NewIndexWriter(e.indexDir)
 	return writer.Flush(e.indexer.index)
 }
 
@@ -84,5 +84,5 @@ type SearchResult struct {
 // String print SearchTopK result info
 func (s *SearchResult) String() string {
 	return fmt.Sprintf("{DocID: %v, Score: %v, Title: %v}",
-	r.DocID, r.Score, r.Title)
+	s.DocID, s.Score, s.Title)
 }

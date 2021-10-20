@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tinysearch"
+	"github.com/ryu0322/tinysearch"
 	"github.com/urfave/cli"
 	"log"
 	"os"

@@ -36,7 +36,7 @@ func (iw *IndexWriter) postingsList(term string, postingsList PostingsList) erro
 		return err
 	}
 
-	filename := filepath.join(iw.indexDir, term)
+	filename := filepath.Join(iw.indexDir, term)
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func (iw *IndexWriter) postingsList(term string, postingsList PostingsList) erro
 	defer file.Close()
 	
 	writer := bufio.NewWriter(file)
-	err := writer.Write(bytes)
+	err = writer.Write(bytes)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (iw *IndexWriter) docCount(count int) error {
 	}
 	defer file.Close()
 
-	_, err := file.Write([]byte(strconv.Itoa(count)))
+	_, err = file.Write([]byte(strconv.Itoa(count)))
 
 	return err
 } 

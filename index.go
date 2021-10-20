@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"unicode/utf8"
+	"strconv"
 )
 
 // 転置インデックス
@@ -16,7 +18,7 @@ type Index struct {
 
 // New Index create a new Index
 func NewIndex() *Index {
-	dict = make(map[string]PostingsList)
+	dict := make(map[string]PostingsList)
 	return &Index{
 		Dictionary: dict,
 		TotalDocsCount: 0,
@@ -51,9 +53,9 @@ type PostingsList struct {
 func NewPostingList (postings ...*Posting) PostingsList {
 	li := list.New()
 	for _, posting := range postings {
-		l.PushBack(posting)
+		li.PushBack(posting)
 	}
-	return &PostingsList{li}
+	return PostingsList{li}
 }
 
 func (pl PostingsList) add(pos *Posting) {
@@ -68,20 +70,10 @@ func (pl PostingsList) last() *Posting {
 	return e.Value.(*Posting)
 }
 
-func (pl PostingsList) Add(new *Posting) {
-	last := pl.last()
-	if last == nil || last.DocID != new.DocID {
-		pl.add(new)
-		return
-	}
-	last.Positions = append(last.Positions, new.Positions ...)
-	last.TermFrequency++
-}
-
 func (idx Index) String() string {
 	var padding int
 	keys := make([]string, 0, len(idx.Dictionary))
-	for _, key := range idx.Dictionary {
+	for key, _ := range idx.Dictionary {
 		l := utf8.RuneCountInString(key)
 		if padding < l {
 			padding = l
@@ -92,8 +84,8 @@ func (idx Index) String() string {
 	strs := make([]string, len(keys))
 	format := "  [%-" + strconv.Itoa(padding) + "s] -> %s"
 	for icnt, key := range keys {
-		if PostingsList, ok := idx.Dictionary[key]; ok {
-			strs[icnt] = fmt.Sprintf(format, k, postingList.String())
+		if postingList, ok := idx.Dictionary[key]; ok {
+			strs[icnt] = fmt.Sprintf(format, key, postingList.String())
 		}
 	}
 	return fmt.Sprintf("total documents : %v\ndictionary:\n%v\n",
@@ -110,7 +102,7 @@ func (pl *PostingsList) MarshalJson() ([]byte, error) {
 	return json.Marshal(postings)
 }
 
-func (pl *PostingsList) UnMarshalJson() ([]byte, error) {
+func (pl *PostingsList) UnMarshalJson(b []byte) error {
 	var postings []*Posting
 	if err := json.Unmarshal(b, &postings); err != nil {
 		return err
@@ -128,7 +120,7 @@ func (pl *PostingsList) UnMarshalJson() ([]byte, error) {
 // ポスティングリストの最後を取得してドキュメントIDが一致していなければポスティングを追加
 // 一致していればポジションを追加
 func (pl PostingsList) Add(new *Posting) {
-	last := pl.Last()
+	last := pl.last()
 	if last == nil || last.DocID != new.DocID {
 		pl.add(new)
 		return 

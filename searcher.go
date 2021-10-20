@@ -20,7 +20,7 @@ func (t *TopDocs) String() string {
 // ドキュメントIDとそのスコアを保存
 type ScoreDoc struct {
 	docID DocumentID
-	score int64
+	score float64 
 }
 
 func (d *ScoreDoc) String() string {
@@ -29,13 +29,13 @@ func (d *ScoreDoc) String() string {
 
 // 検索データに必要なデータを保持する
 type Searcher struct {
-	indexReader *indexReader
+	indexReader *IndexReader
 	cursors []*Cursor
 }
 
 func NewSearcher(path string) *Searcher {
 	return &Searcher{
-		indexReader: NewIndexReader(path)
+		indexReader: NewIndexReader(path),
 	}
 }
 
@@ -107,7 +107,7 @@ func (sea *Searcher) search(query []string) []*ScoreDoc {
 
 // 検索に使用するポスティングリストのポインタを取得する
 // 作成したカーソルの数を返す
-func (sea *searcher) openCursors(query []string) int {
+func (sea *Searcher) openCursors(query []string) int {
 	// ポスティングリストを取得
 	postings := sea.indexReader.PostingsLists(query)
 	if len(postings) == 0 {
@@ -122,7 +122,7 @@ func (sea *searcher) openCursors(query []string) int {
 	// 各ポスティングリストに対するcursorの取得
 	cursors := make([]*Cursor, len(postings))
 	for idx, postingList := range postings {
-		cursors[idx] := postingList.OpenCursor()
+		cursors[idx] = postingList.OpenCursor()
 	}
 	s.cursors = cursors
 	return len(cursors)

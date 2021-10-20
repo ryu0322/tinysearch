@@ -5,12 +5,12 @@ import (
 	"io"
 )
 
-type Index struct {
+type Indexer struct {
 	index *Index
-	tokenizer *tokenizer
+	tokenizer *Tokenizer
 }
 
-func NewIndexer(tokenizer *Tokenizer) *indexer {
+func NewIndexer(tokenizer *Tokenizer) *Indexer {
 	return &Indexer {
 		index: NewIndexer,
 		tokenizer: tokenizer, 
