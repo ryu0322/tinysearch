@@ -36,12 +36,17 @@ type Posting struct {
 }
 
 // ポスティングを作成する
-func NewPostion(docID DocumentID, positions ...int) *Posting {
+func NewPosting(docID DocumentID, positions ...int) *Posting {
 	return &Posting {
 		docID,
 		positions,
 		len(positions),
 	}
+}
+
+func (po Posting) String() string {
+	return fmt.Sprintf("(%v,%v,%v)",
+	po.DocID, po.TermFrequency, po.Positions)
 }
 
 // ポスティングリスト
@@ -50,7 +55,7 @@ type PostingsList struct {
 }
 
 // ポスティングリストを作成する
-func NewPostingList (postings ...*Posting) PostingsList {
+func NewPostingsList (postings ...*Posting) PostingsList {
 	li := list.New()
 	for _, posting := range postings {
 		li.PushBack(posting)
@@ -125,7 +130,7 @@ func (pl PostingsList) Add(new *Posting) {
 		pl.add(new)
 		return 
 	}
-	last.Positions = append(last.Postions, new.Positions)
+	last.Positions = append(last.Positions, new.Positions...)
 	last.TermFrequency++
 }
 
@@ -151,17 +156,17 @@ func (pl PostingsList) OpenCursor() *Cursor {
 }
 
 func (cur *Cursor) Next() {
-	cur.Current = cur.Current.Next()
+	cur.current = cur.current.Next()
 }
 
-func (cur *Cursor) NextDocId(id DocumentID) {
-	for !cur.Empty() && cur.DocId < id {
+func (cur *Cursor) NextDoc(id DocumentID) {
+	for !cur.Empty() && cur.DocId() < id {
 		cur.Next()
 	}
 }
 
 func (cur *Cursor) Empty() bool {
-	if cur.Current != nil {
+	if cur.current != nil {
 		return true
 	}
 
@@ -169,11 +174,11 @@ func (cur *Cursor) Empty() bool {
 }
 
 func (cur *Cursor) Posting() *Posting {
-	return cur.Current.Value.(*Posting)
+	return cur.current.Value.(*Posting)
 }
 
 func (cur *Cursor) DocId() DocumentID {
-	return cur.Current.Value.(*Posting).DocID
+	return cur.current.Value.(*Posting).DocID
 }
 
 func (cur *Cursor) String() string {

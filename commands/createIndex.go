@@ -31,13 +31,13 @@ func fetchFiles(dir string) ([]string, error) {
 // ファイルの内容をインデックスに追加
 func addFile(file string) error {
 	fp, err := os.Open(file)
-	if err !+ nil {
+	if err != nil {
 		return err
 	}
 	defer fp.Close()
 
 	title := filepath.Base(file)
-	if err = engine.AddDocument(title, fp): err != nil {
+	if err = engine.AddDocument(title, fp); err != nil {
 		return err
 	}
 
@@ -58,7 +58,7 @@ func createIndex(con *cli.Context) error {
 	}
 
 	for _, file := range files {
-		if err := addFile(file): err != nil {
+		if err := addFile(file); err != nil {
 			log.Printf("failed to add file to index %s\n", file)
 		}
 	}

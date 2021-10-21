@@ -41,7 +41,7 @@ func NewSearcher(path string) *Searcher {
 
 func (sea *Searcher) SearchTopK(query []string, k int) *TopDocs {
 	// マッチするドキュメントを抽出、スコアを抽出する
-	results := sea.Search(query)
+	results := sea.search(query)
 
 	// 結果をスコアの降順でソートする
 	sort.Slice(results, func(i, j int) bool {
@@ -63,13 +63,13 @@ func (sea *Searcher) SearchTopK(query []string, k int) *TopDocs {
 func (sea *Searcher) search(query []string) []*ScoreDoc {
 	// クエリに含まれる単語のポスティングリストが
 	// 一つも存在しない場合、0件で終了する
-	if sea.OpenCursors(query) == 0 {
-		return []*ScoreDoc
+	if sea.openCursors(query) == 0 {
+		return []*ScoreDoc{}
 	}
 
 	// 一番短いポスティングリストを参照するカーソルを選択
 	c0 := sea.cursors[0]
-	cursors := sea.cursors[i:]
+	cursors := sea.cursors[1:]
 
 	// 結果を格納する構造体を初期化
 	docs := make([]*ScoreDoc, 0)
@@ -88,9 +88,9 @@ func (sea *Searcher) search(query []string) []*ScoreDoc {
 				break
 			}
 		}
-		if nextDocId > 0 {
+		if NextDocId > 0 {
 			// nextDocId以上になるまで進める
-			if c0.NextDoc(nextDocId); c0.Empty() {
+			if c0.NextDoc(NextDocId); c0.Empty() {
 				return docs
 			}
 		} else {
@@ -109,7 +109,7 @@ func (sea *Searcher) search(query []string) []*ScoreDoc {
 // 作成したカーソルの数を返す
 func (sea *Searcher) openCursors(query []string) int {
 	// ポスティングリストを取得
-	postings := sea.indexReader.PostingsLists(query)
+	postings := sea.indexReader.postingsLists(query)
 	if len(postings) == 0 {
 		return 0
 	}
@@ -124,7 +124,7 @@ func (sea *Searcher) openCursors(query []string) int {
 	for idx, postingList := range postings {
 		cursors[idx] = postingList.OpenCursor()
 	}
-	s.cursors = cursors
+	sea.cursors = cursors
 	return len(cursors)
 }
 
@@ -132,8 +132,8 @@ func (sea *Searcher) openCursors(query []string) int {
 func (s *Searcher) calcScore() float64 {
 	var score float64
 	for idx := 0; idx < len(s.cursors); idx++ {
-		termFreq := s.cursors[i].Posting().TermFrequency
-		docCount := s.cursors[i].postingsList.Len()
+		termFreq := s.cursors[idx].Posting().TermFrequency
+		docCount := s.cursors[idx].postingList.Len()
 		totalDocCount := s.indexReader.totalDocCount()
 		score += calcTF(termFreq) * calIDF(totalDocCount, docCount)
 	}

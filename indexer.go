@@ -12,7 +12,7 @@ type Indexer struct {
 
 func NewIndexer(tokenizer *Tokenizer) *Indexer {
 	return &Indexer {
-		index: NewIndexer,
+		index: NewIndex(),
 		tokenizer: tokenizer, 
 	}
 }
@@ -20,6 +20,7 @@ func NewIndexer(tokenizer *Tokenizer) *Indexer {
 func (idxr *Indexer) update(docID DocumentID, reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(idxr.tokenizer.SplitFunc)	// 分割方法の指定
+	var position int
 
 	for scanner.Scan() {
 		term := scanner.Text()	// 単語ごとに読み込み
@@ -30,7 +31,7 @@ func (idxr *Indexer) update(docID DocumentID, reader io.Reader) {
 			idxr.index.Dictionary[term] = NewPostingsList(NewPosting(docID, position))
 		} else {
 			// ポスティングリストがすでに存在する場合は追加
-			postingsList.Add(NewPostingList(docID, position))
+			postingsList.Add(NewPosting(docID, position))
 		}
 		position++
 	}

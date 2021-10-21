@@ -24,7 +24,7 @@ func (r *IndexReader) postingsLists(terms []string) []*PostingsList {
 	postingLists := make([]*PostingsList, 0, len(terms))
 	for _, term := range terms {
 		if postings := r.postings(term); postings != nil {
-			postingsLists = append(postingLists, postings)
+			postingLists = append(postingLists, postings)
 		}
 	}
 	return postingLists

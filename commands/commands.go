@@ -14,7 +14,7 @@ var engine *tinysearch.Engine
 
 func Main() {
 	app := cli.NewApp()
-	app.Nmae = "tinysearch"
+	app.Name = "tinysearch"
 	app.Usage = "simple and small search engine for learning"
 	app.Version = "0.0.1"
 	app.Commands = []cli.Command{
@@ -42,28 +42,25 @@ const (
 
 func checkArgs(context *cli.Context, expected, checkType int) error {
 	var err error
-	cmdName := context.Command.Nmae
+	cmdName := context.Command.Name
 	switch checkType {
 	case exactArgs:
 		if context.NArg() != expected {
 			err = fmt.Errorf(
 				"%s: %q requires exactly %d argument(s)",
 				os.Args[0], cmdName, expected)
-			)
 		}
 	case minArgs:
 		if context.NArg() < expected {
 			err = fmt.Errorf(
 				"%s: %q requires minimum %d argument(s)",
 				os.Args[0], cmdName, expected)
-			)
 		}
 	case maxArgs:
 		if context.NArg() > expected {
 			err = fmt.Errorf(
 				"%s: %q requires maximum %d argument(s)",
 				os.Args[0], cmdName, expected)
-			)
 		}
 	}
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var SearchCommand = cli.Command {
+var searchCommand = cli.Command {
 	Name: "search",
 	Usage: "search_documents",
 	ArgsUsage: "<query>",
@@ -37,7 +37,7 @@ func search(con *cli.Context) error {
 }
 
 // 検索結果を表示する
-func printResult(results []*tinysearch.SearchResults) {
+func printResult(results []*tinysearch.SearchResult) {
 	if len(results) == 0 {
 		fmt.Println("0 match!!")
 		return
@@ -46,8 +46,7 @@ func printResult(results []*tinysearch.SearchResults) {
 	s := make([]string, len(results))
 	for idx, result := range results {
 		s[idx] = fmt.Sprintf("rank:%3d  score:%4f  title:%s",
-			i+1, result.Score, result.Title
-		)
+			idx+1, result.Score, result.Title)
 	}
 
 	fmt.Println(strings.Join(s, "\n"))

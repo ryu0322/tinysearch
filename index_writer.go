@@ -22,11 +22,11 @@ func NewIndexWriter(path string) *IndexWriter {
 // インデックスをファイルに保存する
 func (iw *IndexWriter) Flush(index *Index) error {
 	for term, postingsList := range index.Dictionary {
-		if err := iw.PostingsList(term, postingsList); err != nil {
+		if err := iw.postingsList(term, postingsList); err != nil {
 			fmt.Printf("failed to save %s postings list %v", term, err)
 		}
 	}
-	return w.docCount(index.TotalDocsCount)
+	return iw.docCount(index.TotalDocsCount)
 }
 
 // ポスティングリストをファイルに保存する
@@ -44,7 +44,7 @@ func (iw *IndexWriter) postingsList(term string, postingsList PostingsList) erro
 	defer file.Close()
 	
 	writer := bufio.NewWriter(file)
-	err = writer.Write(bytes)
+	_, err = writer.Write(bytes)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (iw *IndexWriter) postingsList(term string, postingsList PostingsList) erro
 
 // インデックスされたドキュメント総数をファイルに保存する
 func (iw *IndexWriter) docCount(count int) error {
-	filename := filepath.Join(w.indexDir, "_0.dc")
+	filename := filepath.Join(iw.indexDir, "_0.dc")
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
